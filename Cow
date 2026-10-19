@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Интерактивная Корова-Учитель (ОГЭ 9 класс)</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0fdf4;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .game-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .cow-image {
+      width: min(300px, 70vw);
+      height: min(300px, 70vw);
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+    .purring {
+      animation: vibrate 0.05s infinite alternate;
+    }
+    @keyframes vibrate {
+      0% { transform: scale(1) translate(0, 0); }
+      100% { transform: scale(1.02) translate(1px, 1px); }
+    }
+    .speech-bubble {
+      background: white;
+      border: 2px solid #16a34a;
+      color: #166534;
+      padding: 12px 18px;
+      border-radius: 20px;
+      max-width: 320px;
+      font-size: 14px;
+      line-height: 1.4;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .speech-bubble.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hint {
+      color: #dc2626;
+      font-size: 16px;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container" id="cowClicker">
+  <div class="speech-bubble" id="bubble">Нажми на меня, чтобы услышать правило! 🐮</div>
+  
+  <img src="https://unsplash.com" 
+       alt="Корова" 
+       class="cow-image" 
+       id="cowImg">
+       
+  <div class="hint">Нажмите на корову</div>
+</div>
+
+<script>
+// Расширенный список из 12 чередующихся корней для 9 класса
+const rules = [
+  {
+    text: "📝 <b>ГАР / ГОР:</b><br>Под ударением пишем <b>А</b> (загáр), без ударения — <b>О</b> (загорéлый). Исключения: пригарь, выгарки.",
+    speech: "Корень гар гор. Под ударением пишется буква А, например, загар. Без ударения пишется буква О, например, загорелый. Исключения: пригарь, выгарки."
+  },
+  {
+    text: "📝 <b>ЛАГ / ЛОЖ:</b><br>Перед буквой <b>Г</b> пишется <b>А</b> (предлагать), перед буквой <b>Ж</b> пишется <b>О</b> (предложить). Исключение: полог.",
+    speech: "Корень лаг лож. Перед буквой Г пишется буква А, например, предлагать. Перед буквой Ж пишется буква О, например, предложить. Исключение: полог."
+  },
+  {
+    text: "📝 <b>РАСТ / РАЩ / РОС:</b><br>Перед <b>СТ</b> и <b>Щ</b> пишем <b>А</b> (растение, выращивать), перед <b>С</b> — <b>О</b> (вырос). Исключения: росток, отрасль, ростовщик, Ростов, Ростислав.",
+    speech: "Корень раст, ращ, рос. Перед СТ и Щ пишется буква А, например, растение. Перед С пишется буква О, например, вырос. Исключения: росток, отрасль, ростовщик, Ростов, Ростислав."
+  },
+  {
+    text: "📝 <b>БЕР / БИР:</b><br>Если после корня есть суффикс <b>-А-</b>, пишем <b>И</b> (собирать). Если суффикса нет — пишем <b>Е</b> (соберу).",
+    speech: "Корень бер бир. Если после корня есть суффикс А, пишется буква И, например, собирать. Если суффикса нет, пишется буква Е, например, соберу."
+  },
+  {
+    text: "📝 <b>КАС / КОС:</b><br>Если за корнем следует суффикс <b>-А-</b>, пишется буква <b>А</b> (касаться). Если суффикса нет — пишется <b>О</b> (коснуться).",
+    speech: "Корень кас кос. Зависит от суффикса А. Если за корнем следует суффикс А, пишется буква А, например, касаться. В остальных случаях пишется буква О, например, коснуться."
+  },
+  {
+    text: "📝 <b>ЗАР / ЗОР:</b><br>В безударном положении пишется только <b>А</b> (зарá, зарнúца). Под ударением — то, что слышится (зóри, зáрево). Исключение: зоревать.",
+    speech: "Корень зар зор. Без ударения всегда пишется буква А, например, заря, зарница. Под ударением пишется то, что слышно, например, зори. Исключение: зоревать."
+  },
+  {
+    text: "📝 <b>КЛАН / КЛОН:</b><br>В безударном положении всегда пишется буква <b>О</b> (склонение, наклониться). Под ударением пишется то, что слышится.",
+    speech: "Корень клан клон. В безударном положении пишется только буква О, например, склонение, наклониться. Под ударением пишется то, что слышится."
+  },
+  {
+    text: "📝 <b>ТВАР / ТВОР:</b><br>Без ударения всегда пишется буква <b>О</b> (творение, творчество). Исключение: утварь.",
+    speech: "Корень твар твор. В безударном положении всегда пишется буква О, например, творение. Исключение: утварь."
+  },
+  {
+    text: "📝 <b>ПЛАВ / ПЛОВ / ПЛЫВ:</b><br>Буква <b>О</b> пишется только в словах <i>пловец</i> и <i>пловчиха</i>. Буква <b>Ы</b> — в слове <i>плывуны</i>. В остальных случаях — <b>А</b> (плавать).",
+    speech: "Корень плав плов плыв. Буква О пишется только в словах пловец и пловчиха. Буква Ы пишется в слове плывуны. Во всех остальных случаях пишется буква А, например, плавать."
+  },
+  {
+    text: "📝 <b>МАК / МОК:</b><br><b>МАК</b> пишется в значении 'погружать в жидкость' (макнуть сухарь). <b>МОК</b> — в значении 'пропускать жидкость, намокать' (вымокнуть под дождём).",
+    speech: "Корень мак мок. Мак пишется в значении погружать в жидкость, например, макнуть сухарь. Мок пишется в значении пропускать жидкость, намокать, например, вымокнуть под дождём."
+  },
+  {
+    text: "📝 <b>РАВН / РОВН:</b><br><b>РАВН</b> используется в значении 'равный, одинаковый' (уравнение). <b>РОВН</b> — в значении 'ровный, гладкий, прямой' (выровнять дорожку). Исключения: равнина, уровень, поровну.",
+    speech: "Корень равн ровн. Равн пишется в значении равный, одинаковый, например, уравнение. Ровн пишется в значении ровный, гладкий, например, выровнять дорожку. Исключения: равнина, уровень, поровну."
+  },
+  {
+    text: "📝 <b>СКАК / СКОЧ:</b><br>Перед буквой <b>К</b> пишется <b>А</b> (скакать), перед буквой <b>Ч</b> пишется <b>О</b> (выскочить). Исключения: скачок, скачу.",
+    speech: "Корень скак скоч. Перед буквой К пишется буква А, например, скакать. Перед буквой Ч пишется буква О, например, выскочить. Исключения: скачок, скачу."
+  }
+];
+
+const cowClicker = document.getElementById('cowClicker');
+const cowImg = document.getElementById('cowImg');
+const bubble = document.getElementById('bubble');
+
+let audioCtx = null;
+let isProcessing = false;
+
+function playPurrSound(duration, callback) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  const modulator = audioCtx.createOscillator();
+  const modGain = audioCtx.createGain();
+
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(26, audioCtx.currentTime);
+  modulator.frequency.setValueAtTime(58, audioCtx.currentTime); // Быстрая кошачья вибрация
+  modGain.gain.setValueAtTime(14, audioCtx.currentTime);
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(75, audioCtx.currentTime);
+
+  modulator.connect(modGain);
+  modGain.connect(osc.frequency);
+  osc.connect(filter);
+  filter.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.05);
+  gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime + duration - 0.1);
+  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+
+  osc.start(); modulator.start();
+  setTimeout(() => { osc.stop(); modulator.stop(); callback(); }, duration * 1000);
+}
+
+function speakRule(text, callback) {
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ru-RU';
+  utterance.rate = 1.25; // Быстрый темп речи
+
+  const voices = window.speechSynthesis.getVoices();
+  const russianMaleVoice = voices.find(voice => 
+    voice.lang.includes('ru') && 
+    (voice.name.toLowerCase().includes('pavel') || 
+     voice.name.toLowerCase().includes('dmitry') || 
+     voice.name.toLowerCase().includes('male') || 
+     voice.name.toLowerCase().includes('google русский'))
+  );
+
+  if (russianMaleVoice) {
+    utterance.voice = russianMaleVoice;
+  } else {
+    utterance.pitch = 0.82; // Понижение тона, если мужской голос не найден
+  }
+
+  utterance.onend = () => callback();
+  utterance.onerror = () => callback();
+  window.speechSynthesis.speak(utterance);
+}
+
+if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = window.speechSynthesis.getVoices;
+}
+
+cowClicker.addEventListener('click', () => {
+  if (isProcessing) return;
+  isProcessing = true;
+
+  bubble.classList.remove('show');
+  cowImg.classList.add('purring');
+
+  // Мурчание длится ровно 1 секунду
+  playPurrSound(1.0, () => {
+    cowImg.classList.remove('purring');
+
+    const randomRule = rules[Math.floor(Math.random() * rules.length)];
+    bubble.innerHTML = randomRule.text;
+    bubble.classList.add('show');
+
+    speakRule(randomRule.speech, () => {
+      isProcessing = false;
+    });
+  });
+});
+</script>
+</body>
+</html>
