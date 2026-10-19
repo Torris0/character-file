@@ -1,0 +1,2 @@
+# character-file
+CFMOT character
