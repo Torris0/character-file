@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #faf5ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .character-container { text-align: center; }
+    svg {
+      width: min(320px, 90vw);
+      height: auto;
+      filter: drop-shadow(0 8px 16px rgba(168,85,247,.15));
+    }
+  </style>
+</head>
+<body>
+<div class="character-container">
+<svg viewBox="0 0 200 240" xmlns="http://w3.org">
+  
+  <!-- ОБЪЕМНАЯ ЛЕВАЯ НОГА -->
+  <path d="M72 165 L72 198 Q72 214 52 214 L44 214 C38 214 38 202 44 202 L56 202 Q60 202 60 196 L60 165 Z"
+        fill="#c084fc" stroke="#3b0764" stroke-width="1.5" stroke-linejoin="round"/>
+        
+  <!-- ОБЪЕМНАЯ ПРАВАЯ НОГА -->
+  <path d="M128 165 L128 198 Q128 214 148 214 L156 214 C162 214 162 202 156 202 L144 202 Q140 202 140 196 L140 165 Z"
+        fill="#c084fc" stroke="#3b0764" stroke-width="1.5" stroke-linejoin="round"/>
+        
+  <!-- ОБЪЕМНАЯ ЛЕВАЯ РУКА -->
+  <path d="M57 125 C39 131 33 141 26 152 C23 147 17 147 16 152 C14 156 19 160 15 163 C13 166 18 169 21 167 C25 165 27 169 32 166 C36 163 33 158 36 153 C43 142 48 136 57 134 Z"
+        fill="#c084fc" stroke="#3b0764" stroke-width="1.5" stroke-linejoin="round"/>
+        
+  <!-- ОБЪЕМНАЯ ПРАВАЯ РУКА -->
+  <path d="M143 125 C161 131 167 141 174 152 C177 147 183 147 184 152 C186 156 181 160 185 163 C187 166 182 169 179 167 C175 165 173 169 168 166 C164 163 167 158 164 153 C157 142 152 136 143 134 Z"
+        fill="#c084fc" stroke="#3b0764" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- ТЕЛО БУКВЫ Ё (Прежний высокий рост от 80 до 170 и равные зубчики) -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Задний слой (Тёмно-фиолетовый контур) -->
+    <path d="M 65 80 L 65 170 M 65 80 L 135 80 M 65 125 L 135 125 M 65 170 L 135 170" stroke="#3b0764" stroke-width="35" />
+    <!-- Передний слой (Фиолетовая заливка) -->
+    <path d="M 65 80 L 65 170 M 65 80 L 135 80 M 65 125 L 135 125 M 65 170 L 135 170" stroke="#a855f7" stroke-width="32" />
+  </g>
+
+  <!-- БОЛЬШИЕ ЁТКИ (Круглые точки увеличены и приподняты над высоким телом) -->
+  <!-- Левая точка -->
+  <circle cx="78" cy="46" r="18" fill="#a855f7" stroke="#3b0764" stroke-width="1.5" />
+  <!-- Правая точка -->
+  <circle cx="122" cy="46" r="18" fill="#a855f7" stroke="#3b0764" stroke-width="1.5" />
+
+  <!-- КРУГЛЫЕ МУЛЬТЯШНЫЕ ГЛАЗА -->
+  <circle cx="82" cy="120" r="14" fill="white" stroke="#3b0764" stroke-width="1.5"/>
+  <circle id="pupilL" cx="82" cy="120" r="5.5" fill="#111827"/>
+  
+  <circle cx="118" cy="120" r="14" fill="white" stroke="#3b0764" stroke-width="1.5"/>
+  <circle id="pupilR" cx="118" cy="120" r="5.5" fill="#111827"/>
+  
+  <!-- Лицо: Рот / Улыбка -->
+  <path d="M 94 136 Q 100 144 106 136" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+</svg>
+</div>
+
+<script>
+const eyes = [
+  { el: document.getElementById('pupilL'), x: 82, y: 120 },
+  { el: document.getElementById('pupilR'), x: 118, y: 120 }
+];
+
+function lookAt(clientX, clientY) {
+  const svg = document.querySelector('svg');
+  const rect = svg.getBoundingClientRect();
+
+  const mx = (clientX - rect.left) * 200 / rect.width;
+  const my = (clientY - rect.top) * 240 / rect.height;
+
+  eyes.forEach(eye => {
+    const dx = mx - eye.x;
+    const dy = my - eye.y;
+    const angle = Math.atan2(dy, dx);
+    const distance = Math.min(7, Math.hypot(dx, dy) / 18);
+
+    eye.el.setAttribute('cx', eye.x + Math.cos(angle) * distance);
+    eye.el.setAttribute('cy', eye.y + Math.sin(angle) * distance);
+  });
+}
+
+window.addEventListener('pointermove', e => {
+  lookAt(e.clientX, e.clientY);
+});
+</script>
+</body>
+</html>
