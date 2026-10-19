@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fffafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .character-container { text-align: center; }
+    svg {
+      width: min(320px, 90vw);
+      height: auto;
+      filter: drop-shadow(0 8px 16px rgba(225,29,72,.15));
+    }
+  </style>
+</head>
+<body>
+<div class="character-container">
+<svg viewBox="0 0 200 240"
+     xmlns="http://www.w3.org/2000/svg">
+  <path d="M72 165 L72 198 Q72 214 52 214 L44 214 C38 214 38 202 44 202 L56 202 Q60 202 60 196 L60 165 Z"
+        fill="#e36480" stroke="#4c0519" stroke-width="1.5"/>
+  <path d="M128 165 L128 198 Q128 214 148 214 L156 214 C162 214 162 202 156 202 L144 202 Q140 202 140 196 L140 165 Z"
+        fill="#e36480" stroke="#4c0519" stroke-width="1.5"/>
+  <path d="M57 125 C39 131 33 141 26 152 C23 147 17 147 16 152 C14 156 19 160 15 163 C13 166 18 169 21 167 C25 165 27 169 32 166 C36 163 33 158 36 153 C43 142 48 136 57 134 Z"
+        fill="#e36480" stroke="#4c0519" stroke-width="1.5"/>
+  <path d="M143 125 C161 131 167 141 174 152 C177 147 183 147 184 152 C186 156 181 160 185 163 C187 166 182 169 179 167 C175 165 173 169 168 166 C164 163 167 158 164 153 C157 142 152 136 143 134 Z"
+        fill="#e36480" stroke="#4c0519" stroke-width="1.5"/>
+  <path d="M65 80 L65 170 M65 170 L135 80 M135 80 L135 170"
+        stroke="#4c0519" stroke-width="35" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M65 80 L65 170 M65 170 L135 80 M135 80 L135 170"
+        stroke="#e11d48" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="42" y1="128" x2="56" y2="128" stroke="#4c0519" stroke-width="1.5"/>
+  <line x1="144" y1="128" x2="158" y2="128" stroke="#4c0519" stroke-width="1.5"/>
+  <g transform="translate(98,45) rotate(-32) scale(.73) translate(-105,-50)">
+    <path d="M75 52 C62 42 85 15 115 25 C130 30 138 42 132 48 C128 52 138 52 142 62 C146 72 135 82 120 75 C105 68 85 60 75 52 Z"
+          fill="#e11d48" stroke="#4c0519" stroke-width="2"/>
+  </g>
+  <circle cx="82" cy="120" r="14" fill="white" stroke="#4c0519" stroke-width="1.5"/>
+  <circle id="pupilL" cx="82" cy="120" r="5.5" fill="#111827"/>
+  <circle cx="118" cy="120" r="14" fill="white" stroke="#4c0519" stroke-width="1.5"/>
+  <circle id="pupilR" cx="118" cy="120" r="5.5" fill="#111827"/>
+  <path d="M94 136 Q100 144 106 136" stroke="#4c0519" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+</svg>
+</div>
+<script>
+const eyes = [
+  { el: document.getElementById('pupilL'), x: 82, y: 120 },
+  { el: document.getElementById('pupilR'), x: 118, y: 120 }
+];
+
+function lookAt(clientX, clientY) {
+  const svg = document.querySelector('svg');
+  const rect = svg.getBoundingClientRect();
+
+  const mx = (clientX - rect.left) * 200 / rect.width;
+  const my = (clientY - rect.top) * 240 / rect.height;
+
+  eyes.forEach(eye => {
+    const dx = mx - eye.x;
+    const dy = my - eye.y;
+    const angle = Math.atan2(dy, dx);
+    const distance = Math.min(7, Math.hypot(dx, dy) / 18);
+
+    eye.el.setAttribute('cx', eye.x + Math.cos(angle) * distance);
+    eye.el.setAttribute('cy', eye.y + Math.sin(angle) * distance);
+  });
+}
+
+window.addEventListener('pointermove', e => {
+  lookAt(e.clientX, e.clientY);
+});
+</script>
+</body>
+</html>
