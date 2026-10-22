@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Стилизованные буквы</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap&subset=cyrillic" rel="stylesheet">
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111111;
+  }
+
+  svg {
+    width: min(70vw, 400px);
+    height: auto;
+    overflow: visible;
+  }
+
+  #letter {
+    font-family: "Comfortaa", "Arial Rounded MT Bold", sans-serif;
+    font-size: 280px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    fill: #244b85;
+    filter: drop-shadow(0 0 10px #3269b5);
+    transition: opacity 0.25s ease;
+  }
+</style>
+</head>
+
+<body>
+
+<svg viewBox="0 0 400 400" aria-label="Буквы русского алфавита">
+  <text id="letter" x="200" y="200">а</text>
+</svg>
+
+<script>
+  const alphabet = [..."абвгдеёжзийклмнопрстуфхцчшщъыьэюя"];
+  const letter = document.getElementById("letter");
+
+  let index = 0;
+
+  function nextLetter() {
+    letter.style.opacity = "0";
+
+    setTimeout(() => {
+      index = (index + 1) % alphabet.length;
+      letter.textContent = alphabet[index];
+      letter.style.opacity = "1";
+    }, 250);
+  }
+
+  setInterval(nextLetter, 900);
+</script>
+
+</body>
+</html>
